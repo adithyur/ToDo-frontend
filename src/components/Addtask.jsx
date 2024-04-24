@@ -4,10 +4,12 @@ import { TextField, Tooltip } from '@mui/material';
 import Button from '@mui/joy/Button';
 
 import FormControl from '@mui/joy/FormControl';
+import LoadingButton from '@mui/lab/LoadingButton';
+
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import { Modal } from '@mui/material';
-import { Dialog } from '@mui/material';
+import ModalDialog from '@mui/joy/ModalDialog';
 import DialogTitle from '@mui/joy/DialogTitle';
 import DialogContent from '@mui/joy/DialogContent';
 import Stack from '@mui/joy/Stack';
@@ -16,8 +18,7 @@ import Box from '@mui/material/Box';
 
 export default function BasicModalDialog() {
   const [open, setOpen] = React.useState(false);
-  
-
+  const [loading, setLoading] = React.useState(false);
   const [formData, setFormData] = useState({
     task: '',
     dueDate: ''
@@ -33,6 +34,7 @@ export default function BasicModalDialog() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const authid = localStorage.getItem('authid');
     const currentDate = new Date();
 
@@ -47,10 +49,10 @@ export default function BasicModalDialog() {
     try {
         const response = await axios.post('https://todo-backend-9gy2.onrender.com/api/task/add', formDataWithDate);
         console.log('Success:', response.data);
-        setOpen(false); // Close the modal after successful submission
+        setOpen(false);
+        window.location.reload();
     } catch (error) {
         console.error('Error:', error);
-        // Handle errors here
     }
 };
 
@@ -67,7 +69,7 @@ export default function BasicModalDialog() {
         Add Task
       </Button>
       <Modal open={open} onClose={() => setOpen(false)}>
-        <Dialog>
+        <ModalDialog>
           <DialogTitle>Create new task</DialogTitle>
           <DialogContent>Fill in the details for your new task.</DialogContent>
           <form onSubmit={handleSubmit}>
@@ -99,11 +101,21 @@ export default function BasicModalDialog() {
                 />
               </FormControl>
               <Tooltip describeChild title="Does not add if it already exists.">
-                <Button type="submit" variant="outlined" href="#outlined-buttons">Submit</Button>
+                <LoadingButton
+                  size="small"
+                  type='submit'
+                  //onClick={handleClick}
+                  loading={loading}
+                  loadingIndicator="Submiting…"
+                  variant="outlined"
+                >
+                  <span>Submit</span>
+                </LoadingButton>
+
               </Tooltip>
             </Stack>
           </form>
-        </Dialog>
+        </ModalDialog>
       </Modal>
     </Box>
   );
